@@ -26,29 +26,75 @@ int brisi(position);
 int sortiraj(position);
 int uDatoteku(position);
 int citajIzDatoteke(position);
+int menu(position);
 int main()
 {
     position head = NULL;
     head = (position)malloc(sizeof(osoba));
     head->next = NULL;
 
-    umetanjeNaPocetak(head);
-    umetanjeNaKraj(head->next);
-    umetanjeNaPocetak(head);
-    umetanjeNaKraj(head->next);
-    ispis(head);
-    dodajIza(head);
-    ispis(head);
-    dodajIspred(head, head->next);
-    ispis(head);
-    sortiraj(head);
-    printf("\nsortirano:");
-    ispis(head);
-    pronadi(head);
-    brisi(head);
-    ispis(head);
-    uDatoteku(head->next);
-    citajIzDatoteke(head);
+    menu(head);
+
+    return 0;
+}
+int menu(position head)
+{
+    int odabir;
+    printf("\nOdaberite:\n1-UMETANJE NA POCETAK LISTE\n2-UMETANJE NA KRAJ LISTE\n"
+           "3-ISPIS\n4-PRONADI ELEMENT U LISTI\n5-BRISI ELEMENT IZ LISTE"
+           "\n6-DODAJ NOVI ELEMENT IZA ODREDENOG ELEMENTA\n7-DODAJ NOVI ELEMENT ISPRED ODREDENOG ELEMENTA"
+           "\n8-SORTIRAJ LISTU\n9-UPISI LISTU U DATOTEKU\n10-CITAJ LISTU IZ DATOTEKE\n11-KRAJ\n");
+    scanf(" %d", &odabir);
+    switch (odabir)
+	{
+	case (1):
+		umetanjeNaPocetak(head);
+		menu(head);
+		break;
+	case (2):
+		umetanjeNaKraj(head->next);
+		menu(head);
+		break;
+	case (3):
+		ispis(head);
+		menu(head);
+		break;
+	case (4):
+        pronadi(head);
+        menu(head);
+		break;
+    case (5):
+        brisi(head);
+        menu(head);
+		break;
+    case (6):
+        dodajIza(head);
+        menu(head);
+		break;
+    case (7):
+        dodajIspred(head, head->next);
+        menu(head);
+		break;
+    case (8):
+        sortiraj(head);
+        menu(head);
+		break;
+    case (9):
+        uDatoteku(head->next);
+        menu(head);
+		break;
+    case (10):
+        citajIzDatoteke(head);
+        menu(head);
+		break;
+    case (11):
+        printf(":)");
+		break;
+	default:
+		printf("Greska!");
+		break;
+	}
+
 
     return 0;
 }
@@ -177,7 +223,7 @@ int dodajIspred(position q, position p)
 int pronadi(position p)
 {
     char prez[50]={0};
-    printf("\nperzime koje zelite pronaci : ");
+    printf("\nperzime osobe koju zelite pronaci : ");
     scanf(" %s", prez);
 
     while(p->next!=NULL && strcmp(p->prezime, prez))
