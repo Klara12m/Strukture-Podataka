@@ -15,6 +15,8 @@ typedef struct _polinom{
 int citajIzDatoteke(position, position);
 int ispis(position);
 int unosSortirano(position, int, int);
+int zbroji(position, position, position);
+int pomnozi(position, position, position);
 int main()
 {
     position jedan = NULL; //polinom
@@ -31,9 +33,13 @@ int main()
 
     position umnozak = NULL;
     umnozak = (position)malloc(sizeof(polinom));
-    suma->next = NULL;
+    umnozak->next = NULL;
 
     citajIzDatoteke(jedan, drugi);
+
+    zbroji(suma, jedan->next, drugi->next);
+
+    pomnozi(umnozak, jedan->next, drugi->next);
 
     return 0;
 }
@@ -43,8 +49,7 @@ int citajIzDatoteke(position jedan, position drugi)
     pom1 = jedan;
     position pom2 = drugi;
     pom2 = drugi;
-    position temp = NULL;
-    temp = (position)malloc(sizeof(polinom));
+
     int n = 0, i = 0;
     int status = 0;
     char buf[MAX] = {0};
@@ -63,16 +68,14 @@ int citajIzDatoteke(position jedan, position drugi)
         printf("%c", getc(fp));
     }
     rewind(fp);
-
+    //1
     fgets(buf, MAX, fp);
-    printf("\n1. buf:%zu\n", strlen(buf)); //ispisi buffer
     n = strlen(buf);
-    for(i=0; i<n; i++){
+    /*for(i=0; i<n; i++){
     printf("%c", buf[i]);
-    }
+    }*/
     char *bufp1=buf;
 
-    printf("\nproces:");
     while(strlen(bufp1)>1)
     {
     status=sscanf(bufp1, " %d %d%n", &koef, &eksp, &n);
@@ -86,19 +89,17 @@ int citajIzDatoteke(position jedan, position drugi)
 
         unosSortirano(pom1, koef, eksp);
         printf("\n");
-        ispis(pom1);
     }
     printf("\nprvi polinom: ");
     ispis(pom1);
+    //2
     fgets(buf, MAX, fp);
-    printf("\n2. buf:%zu\n", strlen(buf));//ispisi buffer
     n = strlen(buf);
-    for(i=0; i<n; i++){
+    /*for(i=0; i<n; i++){
     printf("%c", buf[i]);
-    }
+    }*/
     char *bufp2=buf;
 
-    printf("\nproces:");
     while(strlen(bufp2)>1)
     {
     status=sscanf(bufp2, " %d %d%n", &koef, &eksp, &n);
@@ -112,7 +113,6 @@ int citajIzDatoteke(position jedan, position drugi)
 
         unosSortirano(pom2, koef, eksp);
         printf("\n");
-        ispis(pom2);
     }
     printf("\ndrugi polinom: ");
     ispis(pom2);
@@ -123,6 +123,7 @@ int citajIzDatoteke(position jedan, position drugi)
 int unosSortirano(position head, int k, int e)
 {
     position p = head;
+    position temp;
 
     while(p->next!=NULL && p->next->eksponent > e)
         p = p->next;
@@ -131,7 +132,8 @@ int unosSortirano(position head, int k, int e)
             p->next->koeficijent+=k;
     }
     else {
-        position novi = (position)malloc(sizeof(polinom));
+        position novi = NULL;
+        novi = (position)malloc(sizeof(polinom));
 
         if (!novi)
             return -1;
@@ -142,6 +144,15 @@ int unosSortirano(position head, int k, int e)
         novi->koeficijent=k;
         novi->eksponent=e;
     }
+     while(p->next != NULL) {
+        if (!p->next->koeficijent) {
+            temp = p->next;
+            p->next = p->next->next;
+            free(temp);
+        }
+        p=p->next;
+    }
+
 
     return 0;
 }
@@ -155,9 +166,45 @@ int ispis(position head)
     }
     while(pom!=NULL)
     {
-        printf("%dx^%d ", pom->koeficijent, pom->eksponent);
+        printf("%dx^%d", pom->koeficijent, pom->eksponent);
+        if(pom->next != NULL)
+            {printf("+");}
         pom = pom->next;
     }
 
     return 0;
+}
+int zbroji(position suma, position jedan, position drugi)
+{
+    while(jedan!=NULL){
+    unosSortirano(suma, jedan->koeficijent, jedan->eksponent);
+    jedan = jedan->next;
+    }
+    printf("\n");
+    while(drugi!=NULL){
+    unosSortirano(suma, drugi->koeficijent, drugi->eksponent);
+    drugi = drugi->next;
+    }
+    printf("\nzbroj: ");
+    ispis(suma);
+
+    return 0;
+}
+int pomnozi(position rez, position jedan, position drugi)
+{
+	position temp;
+	temp = drugi->next;
+
+	while (jedan != NULL) {
+		while (drugi != NULL) {
+			unosSortirano(rez, jedan->koeficijent * drugi->koeficijent, jedan->eksponent + drugi->eksponent);
+			drugi = drugi->next;
+		}
+		drugi = temp;
+		jedan = jedan->next;
+	}
+	printf("\n\numnozak: ");
+	ispis(rez);
+	printf("\n");
+	return 0;
 }
