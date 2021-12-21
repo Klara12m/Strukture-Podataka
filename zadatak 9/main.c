@@ -15,7 +15,7 @@ inorder prolasku nakon korištenja funkcije iz a), zatim b) dijela zadatka.*/
 #include<stdio.h>
 #include<malloc.h>
 #include<stdlib.h>
-#define MAX 1024
+#include<time.h>
 
 struct _tree;
 typedef struct _tree *position;
@@ -25,10 +25,22 @@ typedef struct _tree{
     position right;
 }tree;
 
+struct _list;
+typedef struct _list* pl;
+typedef struct _list{
+    int el;
+    pl next;
+}list;
+
 position insert(position, int);
 void print(position);
+int replace(position);
+void uDatoteku(position);
+void krozStablo(position root, FILE* fp);
 int main()
 {
+    //a)
+    printf("a)\n");
     position root;
     root = NULL;
     int i = 0;
@@ -38,8 +50,37 @@ int main()
         root = insert(root, brojevi[i]);
         i++;
     }
-    printf("stablo:\n");
     print(root);
+    uDatoteku(root);
+
+    //b)
+    printf("\nb)");
+    root->el = replace(root->left) + replace(root->right);
+    printf("\n");
+    print(root);
+    uDatoteku(root);
+
+    //c)
+    printf("\nc)");
+    srand(time(NULL));
+    position root2;
+    FILE* fp;
+    struct _list head = {.el = 0, .next = NULL};
+
+    root2 = (position)malloc(sizeof(tree));
+    root2->el = rand() % 80 + 10;
+    root2->left = NULL;
+    root2->right = NULL;
+
+    for(i = 1; i < 10; i++)
+    {
+        root2 = insert(root2, rand() % 80 + 10);
+    }
+    printf("\n");
+    print(root2);
+
+    uDatoteku(root2);
+
     return 0;
 }
 position insert(position root, int n)
@@ -66,8 +107,38 @@ void print(position root)
 {
     if (root)
 	{
+        print(root->left);
 		printf("%d\n", root->el);
-		print(root->left);
 		print(root->right);
+	}
+}
+int replace(position root)
+{
+    int temp = 0;
+    if(root==NULL){
+        return 0;
+    }
+    temp = root->el;
+    root->el = replace(root->left)+replace(root->right);
+    return temp + root->el;
+}
+void uDatoteku(position root)
+{
+    char filename[20];
+    FILE* fp;
+    printf("\nime datoteke: ");
+    scanf(" %s", &filename);
+    fp = fopen(filename, "w");
+    krozStablo(root, fp);
+    fprintf(fp, "\n");
+    fclose(fp);
+}
+void krozStablo(position root, FILE* fp)
+{
+    if (root)
+	{
+        krozStablo(root->left, fp);
+		fprintf(fp, "%d ", root->el);
+		krozStablo(root->right, fp);
 	}
 }
