@@ -1,0 +1,3 @@
+Athens		664,046
+Thessaloniki	354,290
+Patra		168,034

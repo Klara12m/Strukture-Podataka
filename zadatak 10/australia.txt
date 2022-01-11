@@ -1,0 +1,3 @@
+Canberra	395,790
+Melbourne	5,159,211
+Sydney		3,097,956
