@@ -1,3 +1,3 @@
-zagreb	806,341
-split	346,314
-rijeka	245,054
+zagreb	806341
+split	346314
+rijeka	245054

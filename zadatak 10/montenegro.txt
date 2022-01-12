@@ -1,3 +1,3 @@
-Podgorica	150,977
-Nikšić		56,970
-Herceg Novi	19,536
+Podgorica	150977
+Nikšić		56970
+Herceg Novi	19536
