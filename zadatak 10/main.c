@@ -37,10 +37,14 @@ int main()
 }
 int dodajIza(plista p)
 {
-    int n = 0, i = 0;
+    int n = 0, i = 0, br = 0;
+    char c;
     int status = 0;
-    char *buf = 0;
-    FILE* fp;
+    char buf = {0};
+    char name[MAX] = {0};
+    int population = 0;
+    plista temp = NULL;
+    FILE* fp = NULL;
     fp = fopen("drzave.txt", "r");
     if (fp == NULL) {
 		perror("Greska! Neuspjelo otvaranje datoteke.");
@@ -49,28 +53,25 @@ int dodajIza(plista p)
     plista novi = NULL;
     novi = (plista)malloc(sizeof(lista));
 
-    buf = (char*)malloc(MAX*sizeof(char));
+    if (!novi)
+		{
+			perror("Greska!");
+			return -1;
+		}
 
     rewind(fp);
 
-    fgets(buf, MAX, fp);
-    n = strlen(buf);
-    for(i=0; i<n; i++){
-    printf("%c", buf[i]);
+    while(!feof(fp)){
+        fgets(buf, MAX, fp);
+
+        if (sscanf(buf, " %s %s", novi->name, ime) == 2)
+		{
+			novi->next = NULL;
+			novi->stablo=NULL;
+		}
     }
 
-    /*while(!feof(fp))
-    {
-        fscanf(fp, );
-        while(p->next!=NULL && strcmp(p->prezime, pr))
-        {
-            p = p->next;
-        }
-        novi->next=p->next;
-        p->next=novi;
-    }*/
-
-
+    fclose(pf);
 
     return 0;
 }
