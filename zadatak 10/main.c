@@ -1,180 +1,256 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
-#include<string.h>
+#include <string.h>
 #define MAX 100
-
-struct _drzava;
-typedef struct _lista* plista;
 
 struct _stablo;
 typedef struct _stablo* pstablo;
-
-typedef struct _lista
-{
-	char name[MAX];
-	plista next;
-	pstablo stablo;
-}lista;
-
-typedef struct _stablo
-{
-	char name[MAX];
-	int population;
-	pstablo left;
-	pstablo right;
+typedef struct _stablo{
+  char* name;
+  int population;
+  pstablo left;
+  pstablo right;
 }stablo;
 
-//drzava - lista
-//grad - stablo
+struct _lista;
+typedef struct _lista* plista;
+typedef struct _lista{
+  char* name;
+  pstablo root;
+  plista next;
+}lista;
+
+int printS(pstablo);
+int printL(plista);
+int insert(pstablo, pstablo);
+pstablo citajIzDatotekeUStablo(char *);
+int printG(pstablo, int);
+plista pronadiDrzavu(plista , char*);
+int pronadiGrad(plista);
 int citajIzDatotekeUListu(plista);
-pstablo citajIzDatotekeUStablo(char*, pstablo);
-pstablo uStablo(pstablo, pstablo);
-int print(plista);
-int printStablo(pstablo);
-int main()
+int main(){
+    plista head = NULL;
+    head = (plista)malloc(sizeof(lista));
+    head -> name = NULL;
+    head -> root = NULL;
+    head -> next = NULL;
+
+    citajIzDatotekeUListu(head);
+    printL(head);
+    pronadiGrad(head);
+
+    return 0;
+}
+int printS(pstablo s)
 {
-    lista head = {.name = {0}, .next = NULL, .stablo = NULL};
-    citajIzDatotekeUListu(&head);
-    //print(&head);
+    if(s == NULL){
+        return 0;
+    }
+    printS(s -> right);
+    printf("\n\t%s   %d", s -> name, s -> population);
+    printS(s -> left);
+
+    return 0;
+}
+int printL(plista head)
+{
+    plista temp = head -> next;
+
+    while(temp){
+        printf("%s", temp -> name);
+        printS(temp -> root);
+        printf("\n");
+        temp = temp -> next;
+    }
+    return 0;
+}
+int insert(pstablo curr, pstablo novi)
+{
+    int status = 0;
+    int relation = 0;
+
+    if(curr == NULL){
+        return 1;
+    }
+    relation = novi -> population - curr -> population;
+    if(relation != 0){
+        relation = strcmp(novi -> name, curr -> name);
+    }
+    if(relation == 0){
+        free(novi);
+        return 0;
+    }
+    if(relation < 0){
+        if (curr -> left == NULL){
+          curr -> left = novi;
+          return 0;
+        }
+        status = insert(curr -> left, novi);
+        return 0;
+    }
+    else{
+        if(curr -> right == NULL){
+          curr -> right = novi;
+          return 0;
+        }
+
+        status = insert(curr -> right, novi);
+        return 0;
+    }
+
+    return 0;
+}
+pstablo citajIzDatotekeUStablo(char* filename)
+{
+    pstablo temp = NULL;
+    pstablo root = NULL;
+    pstablo novi = NULL;
+    char buffer[MAX];
+    char name[MAX];
+    int population = 0;
+    int status = 0;
+
+    FILE* fp = NULL;
+    fp = fopen(filename, "r");
+    if(!fp){
+        return NULL;
+    }
+
+    while(!feof(fp)){
+        fgets(buffer, MAX, fp);
+        status = sscanf(buffer, "%s %d", name, & population);
+
+        if(status == 2){
+            novi = (pstablo) malloc(sizeof(stablo));
+            if (novi == NULL){
+                return NULL;
+            }
+            novi -> name = (char * ) malloc(strlen(name));
+            strcpy(novi -> name, name);
+            novi -> population = population;
+            novi -> left = NULL;
+            novi -> right = NULL;
+
+            temp = novi;
+
+            if(temp){
+                if(!root){
+                    root = temp;
+                }
+                else{
+                    insert(root, temp);
+                }
+            }
+        }
+    }
+
+    fclose(fp);
+
+    return root;
+}
+int printG(pstablo g, int br)
+{
+    if(g == NULL) {
+        return 0;
+    }
+
+    printG(g -> left, br);
+    if(g -> population > br){
+        printf("\n\t%s   %d", g -> name, g -> population);
+    }
+    printG(g -> right, br);
+
+    return 0;
+}
+plista pronadiDrzavu(plista head, char* name)
+{
+    plista temp = head;
+
+    while(temp){
+        if(temp -> name && !strcmp(temp -> name, name)){
+            return temp;
+        }
+        temp = temp -> next;
+    }
+    return NULL;
+}
+int pronadiGrad(plista head)
+{
+    char* name = NULL;
+    plista city = NULL;
+    int br = 0;
+
+    printf("Odaberi državu: ");
+    name = (char*) malloc(MAX);
+
+    fgets(name, MAX, stdin);
+    name[strcspn(name, "\n")] = 0;
+
+    city = pronadiDrzavu(head, name);
+    if (city == NULL){
+    return 1;
+    }
+
+    printf("Unesite granicu: ");
+    scanf("%d", &br);
+    printf("\nVas rezultat:\n");
+    printG(city -> root, br);
+
     return 0;
 }
 int citajIzDatotekeUListu(plista head)
 {
-    int n = 0, i = 0;
     int status = 0;
-    char buf[MAX] = {0};
-    FILE* fp = NULL;
-    fp = fopen("drzave.txt", "r");
-    if (fp == NULL) {
-		perror("Greska! Neuspjelo otvaranje datoteke.");
-        return 0;
-	}
+    char buffer[MAX] = {0};
+    plista templista = NULL;
+    plista temp = head;
     plista novi = NULL;
-    novi = (plista)malloc(sizeof(lista));
+    char name[MAX];
+    char drzavatxt[MAX];
 
-    if (!novi)
-		{
-			perror("Greska!");
-			return -1;
-		}
-
-    rewind(fp);
-
-    while(!feof(fp)){
-
-        fgets(buf, MAX, fp);
-        n=strlen(buf);
-        for(i=0; i<n; i++){
-            printf("%c", buf[i]);
-        }
-
-        status = sscanf(buf, " %s ", novi->name);
-        printf("1: %s\n", novi->name);
-        if (status == 1)
-		{
-			novi->next = NULL;
-			novi->stablo = citajIzDatotekeUStablo(novi->name, novi->stablo);
-			while (head->next != NULL && strcmp(head->next->name, novi->name) < 0)
-            head = head->next;
-            novi->next = head->next;
-            head->next = novi;
-		}
+    FILE * fp = NULL;
+    fp = fopen("drzave.txt", "r");
+    if (fp == NULL){
+        perror("Greska! Neuspjelo otvaranje datoteke.");
+        return -1;
     }
 
-    while(head){
-        printf("\n2: %s", head->name);
-        head = head->next;
-    }
+    while (!feof(fp)){
+        fgets(buffer, MAX, fp);
+        status = sscanf(buffer,"%s %s", name, drzavatxt);
+        if (status == 2){
+            novi = (plista) malloc(sizeof(lista));
+            if (novi == NULL) {
+                return 0;
+            }
+            novi -> name = (char * ) malloc(strlen(name));
 
-    fclose(fp);
+            strcpy(novi -> name, name);
+            novi -> root = NULL;
+            novi -> next = NULL;
 
-    return 0;
-}
-pstablo citajIzDatotekeUStablo(char* name, pstablo p)
-{
-    //printf(" %s ", name);
-    char buf[MAX] = {0};
-    char grad[MAX] = {0};
-    int br = 0, n = 0, i = 0, status = 0;
-    pstablo novi = NULL;
-    novi = (pstablo)malloc(sizeof(stablo));
-	if (!novi)
-	{
-		perror("Greska pri alociranju!");
-		return -1;
-	}
+            templista = novi;
 
-    FILE* fp = NULL;
-    fp = fopen(name, "r");
-    if (fp == NULL) {
-		perror("Greska! Neuspjelo otvaranje datoteke.");
-        return 0;
-	}
+            if (templista) {
+                pstablo cities = citajIzDatotekeUStablo(drzavatxt);
+                templista -> root = cities;
 
-	while(!feof(fp)){
-        fgets(buf, MAX, fp);
-        n=strlen(buf);
-        for(i=0; i<n; i++){
-            printf("%c", buf[i]);
-        }
-        status = sscanf(buf, " %s %d", grad, &br);
-        printf("3: %S %d ", grad, br);
-        printf("\nstatus2: %d", status);
-        printf("\n%s %d", grad, br);
-        if (status == 2)
-		{
-			strcpy(novi->name, grad);
-			printf("4: %s %d ", grad, br);
-            novi->population = br;
-            novi->left = NULL;
-            novi->right = NULL;
-			p = uStablo(novi, p);
+                while (temp -> next){
+                    if (strcmp(templista -> name, temp -> next -> name) < 0){
+                        templista -> next = temp -> next;
+                        temp -> next = templista;
+                        return 0;
+                    }
+                    temp = temp -> next;
+                }
+                templista -> next = temp -> next;
+                temp -> next = templista;
+            }
         }
     }
 
-    fclose(fp);
+  fclose(fp);
 
-    return p;
-}
-pstablo uStablo(pstablo novi, pstablo p)
-{
-    if (p == NULL){
-        return novi;
-    }
-    else if (p->population > novi->population){
-        p->left = uStablo(novi, p->left);
-    }
-    else if (p->population < novi->population){
-        p->right = uStablo(novi, p->right);
-    }
-    else{
-        if (strcmp(p->name, novi->name) > 0){
-            p->left = uStablo(novi, p->left);
-        }
-
-        else if (strcmp(p->name, novi->name) < 0){
-            p->right = uStablo(novi, p->right);
-        }
-        else
-        free(novi);
-    }
-    return p;
-}
-int print(plista l)
-{
-    while(l){
-        printf("\n%s", l->name);
-        printStablo(l->stablo);
-        l = l->next;
-    }
-    return 0;
-}
-int printStablo(pstablo s)
-{
-    if(s == NULL)return 0;
-    printStablo(s->left);
-    printf("\n\t%s %d", s->name, s->population);
-    printStablo(s->right);
-    return 0;
+  return 0;
 }

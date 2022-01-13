@@ -1,5 +1,5 @@
-australia.txt
-croatia.txt
-denmark.txt
-greece.txt
-montenegro.txt
+australia australia.txt
+croatia croatia.txt
+denmark denmark.txt
+greece greece.txt
+montenegro montenegro.txt
