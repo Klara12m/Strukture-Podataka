@@ -1,0 +1,3 @@
+Canberra	395790
+Melbourne	5159211
+Sydney		3097956
