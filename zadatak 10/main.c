@@ -181,7 +181,7 @@ int pronadiGrad(plista head)
     plista city = NULL;
     int br = 0;
 
-    printf("Odaberi državu: ");
+    printf("Odaberi drï¿½avu: ");
     name = (char*) malloc(MAX);
 
     fgets(name, MAX, stdin);

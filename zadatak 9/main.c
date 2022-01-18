@@ -39,6 +39,10 @@ void uDatoteku(position);
 void krozStablo(position root, FILE* fp);
 int main()
 {
+    position root2;
+    FILE* fp;
+    struct _list head = {.el = 0, .next = NULL};
+
     //a)
     printf("a)\n");
     position root;
@@ -63,9 +67,6 @@ int main()
     //c)
     printf("\nc)");
     srand(time(NULL));
-    position root2;
-    FILE* fp;
-    struct _list head = {.el = 0, .next = NULL};
 
     root2 = (position)malloc(sizeof(tree));
     root2->el = rand() % 80 + 10;

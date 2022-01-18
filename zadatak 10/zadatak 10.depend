@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1642522523 source:c:\users\klara\onedrive\desktop\strukture-podataka\zadatak 10\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
