@@ -1,270 +1,282 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#define MAXL 100
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #define MAX 100
+#define HMAX 11
 
 struct _stablo;
 typedef struct _stablo* pstablo;
-typedef struct _stablo {
-	char* name;
-	int population;
-	pstablo left;
-	pstablo right;
-}tree;
+typedef struct _stablo{
+  char* name;
+  int population;
+  pstablo left;
+  pstablo right;
+}stablo;
 
 struct _lista;
 typedef struct _lista* plista;
-typedef struct _lista {
-	char* name;
-	char* drzavetxt;
-	plista next;
-	pstablo root;
-}list;
+typedef struct _lista{
+  char* name;
+  pstablo root;
+  plista next;
+}lista;
 
-char* napraviString(int);
-plista stvoriHash(int);
-int sortHashTab(plista, plista);
-plista findPrev(plista, plista);
-int addLast(plista, plista);
-int inputDrzave(plista, char*, char*);
-int stvoriHashKey(plista, int);
-int inputGrad(pstablo, char*, int);
-int insertStablo(pstablo, pstablo);
-int citajIzDatoteke(plista);
-int readFileGrad(plista);
-int printH(plista, int);
-int printL(plista);
 int printS(pstablo);
+int printL(plista);
+int insert(pstablo, pstablo);
+pstablo citajIzDatotekeUStablo(char *);
+int printG(pstablo, int);
+plista pronadiDrzavu(plista , char*);
+int pronadiGrad(plista);
+int citajIzDatoteke(plista);
+int main(){
+    plista HashTab[HMAX];
 
-int main()
-{
-	plista head = stvoriHash(MAXL);
-	citajIzDatoteke(head);
-	printH(head, MAXL);
-
-	printf("\n");
-
-	return 0;
-}
-
-
-char* napraviString(int length) {
-	char* string = (char*)malloc(length * sizeof(char));
-	return string;
-}
-
-plista stvoriHash(int red) {
-	int i = 0;
-
-	plista head = (plista)malloc(red * sizeof(list));
-	if (head == NULL)
-		return 0;
-
-	for (i = 0; i < red; i++) {
-		(head + i)->next = NULL;
-		(head + i)->root = NULL;
-	}
-
-	return head;
-}
-
-
-int sortHashTab(plista head, plista drzava) {
-	if (head->next == NULL) {
-		head->next = drzava;
-		return 0;
-	}
-
-	plista temp = NULL;
-	plista prev = NULL;
-
-	for (temp = head->next; temp != NULL; temp = temp->next) {
-		if (strcmp(drzava->name, temp->name) < 0) {
-			prev = findPrev(head, temp);
-			drzava->next = prev->next;
-			prev->next = drzava;
-			return 0;
-		}
-	}
-	addLast(head, drzava);
-	return 0;
-}
-
-plista findPrev(plista head, plista node) {
-	plista pom = NULL;
-
-	for (pom = head; pom->next != NULL; pom = pom->next) {
-		if (pom->next == node)
-			return pom;
-	}
-
-	return pom;
-}
-
-int addLast(plista head, plista node) {
-	plista temp = NULL;
-	for (temp = head; temp->next != NULL; temp = temp->next);
-	temp->next = node;
-
-	return 0;
-}
-
-int inputDrzave(plista _drzava, char* name, char* filename) {
-	_drzava->name = name;
-
-	return 0;
-}
-
-int stvoriHashKey(plista drzava, int red) {
-	int sum = 0;
-	int i = 0;
-	int pom = 0;
-
-	char letter;
-
-	for (i = 0; i < 5; i++) {
-		letter = *(drzava->name + i);
-		pom = (int)letter;
-		sum += pom;
-	}
-
-	return sum % red;
-}
-
-int inputGrad(pstablo grad, char* ime, int population) {
-	grad->name = ime;
-	grad->population = population;
-
-	return 0;
-}
-
-int insertStablo(pstablo branch, pstablo grad) {
-	if (grad->population > branch->population) {
-		if (branch->left == NULL) {
-			branch->left = grad;
-			return 0;
-		}
-		else
-			insertStablo(branch->left, grad);
-	}
-	else {
-		if (branch->right == NULL) {
-			branch->right = grad;
-			return 0;
-		}
-		else
-			insertStablo(branch->right, grad);
+    for (int i = 0; i < HMAX; i++) {
+        HashTab[i] = (plista) malloc(sizeof(lista));
+        HashTab[i] -> name = NULL;
+        HashTab[i] -> root = NULL;
+        HashTab[i] -> next = NULL;
     }
 
-	return 0;
+    citajIzDatoteke(HashTab);
+
+    for (int i = 0; i < HMAX; i++) {
+        printL(HashTab[i]);
+    }
+
+    pronadiGrad(HashTab);
+
+    return 0;
 }
+int printS(pstablo s)
+{
+    if(s == NULL){
+        return 0;
+    }
+    printS(s -> right);
+    printf("\n\t%s   %d", s -> name, s -> population);
+    printS(s -> left);
 
-int citajIzDatoteke(plista head) {
-
-	FILE* fp;
-
-	fp = fopen("drzave.txt", "r");
-
-	plista newDrzava = NULL;
-	int key = 0;
-	char* red;
-	char* filename;
-	char* drzava_ime;
-
-	while (!feof(fp)) {
-        plista temp = (plista)malloc(sizeof(list));
-        if (temp == NULL)
-            return NULL;
-
-        temp->next = NULL;
-        temp->root = NULL;
-        newDrzava = temp;
-
-		drzava_ime = napraviString(MAX);
-		filename = napraviString(MAX);
-		red = napraviString(MAX);
-
-		fgets(red, MAX, fp);
-		sscanf(red, "%s %s", drzava_ime, filename);
-
-		inputDrzave(newDrzava, drzava_ime, filename);
-
-		key = stvoriHashKey(newDrzava, MAXL);
-
-        sortHashTab(head + key, newDrzava);
-
-		readFileGrad(newDrzava);
-	}
-
-	fclose(fp);
-
-	return 0;
+    return 0;
 }
+int printL(plista head)
+{
+    plista temp = head -> next;
 
-int readFileGrad(plista drzava) {
-	FILE* fp;
-
-	fp = fopen(drzava->drzavetxt, "r");
-
-	pstablo newGrad = NULL;
-	char* grad = NULL;
-	int population = 0;
-	char* red = NULL;
-
-	while (!feof(fp)) {
-        pstablo temp = (pstablo)malloc(sizeof(tree));
-        if (temp == NULL)
-            return NULL;
-
-        temp->population = 0;
-        temp->left = NULL;
-        temp->right = NULL;
-        newGrad = temp;
-
-		grad = napraviString(MAX);
-		red = napraviString(MAX);
-
-		fgets(red, MAX, fp);
-		sscanf(red, "%s %d", grad, &population);
-		inputGrad(newGrad, grad, population);
-
-		if (drzava->name == NULL)
-			drzava->name = newGrad;
-		else {
-			insertStablo(drzava->name, newGrad);
-		}
-	}
-
-	fclose(fp);
-	return 0;
+    while(temp){
+        printf("%s", temp -> name);
+        printS(temp -> root);
+        printf("\n");
+        temp = temp -> next;
+    }
+    return 0;
 }
+int insert(pstablo curr, pstablo novi)
+{
+    int status = 0;
+    int relation = 0;
 
-int printH(plista head, int red) {
-	int i = 0;
-	for (i = 0; i < red; i++) {
-		printf("\n%d row:", i + 1);
-		printL(head + i);
-	}
-	return 0;
+    if(curr == NULL){
+        return 1;
+    }
+    relation = novi -> population - curr -> population;
+    if(relation != 0){
+        relation = strcmp(novi -> name, curr -> name);
+    }
+    if(relation == 0){
+        free(novi);
+        return 0;
+    }
+    if(relation < 0){
+        if (curr -> left == NULL){
+          curr -> left = novi;
+          return 0;
+        }
+        status = insert(curr -> left, novi);
+        return 0;
+    }
+    else{
+        if(curr -> right == NULL){
+          curr -> right = novi;
+          return 0;
+        }
+
+        status = insert(curr -> right, novi);
+        return 0;
+    }
+
+    return 0;
 }
+pstablo citajIzDatotekeUStablo(char* filename)
+{
+    pstablo temp = NULL;
+    pstablo root = NULL;
+    pstablo novi = NULL;
+    char buffer[MAX];
+    char name[MAX];
+    int population = 0;
+    int status = 0;
 
-int printL(plista head) {
-	plista temp = NULL;
-	for (temp = head->next; temp != NULL; temp = temp->next) {
-		printf("\n%s\n", temp->name);
-		printS(temp->name);
-	}
-	return 0;
+    FILE* fp = NULL;
+    fp = fopen(filename, "r");
+    if(!fp){
+        return NULL;
+    }
+
+    while(!feof(fp)){
+        fgets(buffer, MAX, fp);
+        status = sscanf(buffer, "%s %d", name, & population);
+
+        if(status == 2){
+            novi = (pstablo) malloc(sizeof(stablo));
+            if (novi == NULL){
+                return NULL;
+            }
+            novi -> name = (char * ) malloc(strlen(name));
+            strcpy(novi -> name, name);
+            novi -> population = population;
+            novi -> left = NULL;
+            novi -> right = NULL;
+
+            temp = novi;
+
+            if(temp){
+                if(!root){
+                    root = temp;
+                }
+                else{
+                    insert(root, temp);
+                }
+            }
+        }
+    }
+
+    fclose(fp);
+
+    return root;
 }
+int printG(pstablo g, int br)
+{
+    if(g == NULL) {
+        return 0;
+    }
 
-int printS(pstablo branch) {
-	if (branch->left != NULL)
-		printS(branch->left);
-	printf("\n%s\t%d", branch->name, branch->population);
-	if (branch->right != NULL)
-		printS(branch->right);
+    printG(g -> left, br);
+    if(g -> population > br){
+        printf("\n\t%s   %d", g -> name, g -> population);
+    }
+    printG(g -> right, br);
 
-	return 0;
+    return 0;
+}
+plista pronadiDrzavu(plista head, char* name)
+{
+    plista temp = head;
+
+    while(temp){
+        if(temp -> name && !strcmp(temp -> name, name)){
+            return temp;
+        }
+        temp = temp -> next;
+    }
+    return NULL;
+}
+int pronadiGrad(plista head)
+{
+    char* name = NULL;
+    plista city = NULL;
+    int br = 0;
+
+    printf("Odaberi dr�avu: ");
+    name = (char*) malloc(MAX);
+
+    fgets(name, MAX, stdin);
+    name[strcspn(name, "\n")] = 0;
+
+    city = pronadiDrzavu(head, name);
+    if (city == NULL){
+    return 1;
+    }
+
+    printf("Unesite granicu: ");
+    scanf("%d", &br);
+    printf("\nVas rezultat:\n");
+    printG(city -> root, br);
+
+    return 0;
+}
+int citajIzDatoteke(plista HashTab[HMAX])
+{
+    int status = 0;
+    int key = 0;
+    int limit = 5;
+    char buffer[MAX] = {0};
+    plista templista = NULL;
+    plista novi = NULL;
+    char name[MAX];
+    char drzavatxt[MAX];
+
+    FILE * fp = NULL;
+    fp = fopen("drzave.txt", "r");
+    if (fp == NULL){
+        perror("Greska! Neuspjelo otvaranje datoteke.");
+        return -1;
+    }
+
+    while (!feof(fp)){
+        fgets(buffer, MAX, fp);
+        status = sscanf(buffer,"%s %s", name, drzavatxt);
+        if (status == 2){
+            novi = (plista) malloc(sizeof(lista));
+            if (novi == NULL) {
+                return 0;
+            }
+            novi -> name = (char * ) malloc(strlen(name));
+
+            strcpy(novi -> name, name);
+            novi -> root = NULL;
+            novi -> next = NULL;
+
+            templista = novi;
+
+            if (templista) {
+                pstablo cities = citajIzDatotekeUStablo(drzavatxt);
+                templista -> root = cities;
+
+                if (strlen(templista -> name) < limit) {
+                    limit = strlen(templista -> name);
+                }
+
+                for (int i = 0; i < limit; i++) {
+                    key += (templista -> name)[i];
+                }
+
+                key = key % HMAX;
+
+                while (HashTab[key] -> next) {
+    if (strcmp(templista -> name, HashTab[key] -> next -> name) < 0) {
+
+  templista -> next = HashTab[key] -> next;
+  HashTab[key] -> next = templista;
+      return 0;
+    }
+
+    HashTab[key] = HashTab[key] -> next;
+  }
+
+  templista -> next = HashTab[key] -> next;
+  HashTab[key] -> next = templista;
+
+
+                key = 0;
+                limit = 5;
+            }
+        }
+    }
+
+  fclose(fp);
+
+  return 0;
 }
