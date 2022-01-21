@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX 100
+#define MAX 245
 #define HMAX 11
 
 struct _stablo;
@@ -28,7 +28,7 @@ int insert(pstablo, pstablo);
 pstablo citajIzDatotekeUStablo(char *);
 int printG(pstablo, int);
 plista pronadiDrzavu(plista , char*);
-int pronadiGrad(plista);
+int pronadiGrad(plista HashTab[HMAX]);
 int citajIzDatoteke(plista HashTab[HMAX]);
 int main(){
     int i = 0;
@@ -128,7 +128,7 @@ pstablo citajIzDatotekeUStablo(char* filename)
 
     while(!feof(fp)){
         fgets(buffer, MAX, fp);
-        status = sscanf(buffer, "%s %d", name, & population);
+        status = sscanf(buffer, " %s %d", name, & population);
 
         if(status == 2){
             novi = (pstablo) malloc(sizeof(stablo));
@@ -184,21 +184,36 @@ plista pronadiDrzavu(plista head, char* name)
     }
     return NULL;
 }
-int pronadiGrad(plista head)
+int pronadiGrad(plista HashTab[HMAX])
 {
     char* name = NULL;
     plista city = NULL;
     int br = 0;
+    int key = 0;
+    int limit = 0;
+    int i = 0;
 
-    printf("Odaberi dr�avu: ");
+    printf("Odaberi drzavu: ");
+
     name = (char*) malloc(MAX);
 
     fgets(name, MAX, stdin);
     name[strcspn(name, "\n")] = 0;
 
-    city = pronadiDrzavu(head, name);
+    if (strlen(name) < limit) {
+        limit = strlen(name);
+    }
+
+    for (i = 0; i < limit; i++) {
+        key += name[i];
+    }
+
+    key = key % HMAX;
+
+    city = pronadiDrzavu(HashTab[key], name);
     if (city == NULL){
-    return 1;
+        printf("Greska!");
+        return 1;
     }
 
     printf("Unesite granicu: ");
@@ -228,7 +243,7 @@ int citajIzDatoteke(plista HashTab[HMAX])
 
     while (!feof(fp)){
         fgets(buffer, MAX, fp);
-        status = sscanf(buffer,"%s %s", name, drzavatxt);
+        status = sscanf(buffer," %s %s", name, drzavatxt);
         if (status == 2){
             novi = (plista) malloc(sizeof(lista));
             if (novi == NULL) {
