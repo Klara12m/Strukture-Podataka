@@ -29,11 +29,12 @@ pstablo citajIzDatotekeUStablo(char *);
 int printG(pstablo, int);
 plista pronadiDrzavu(plista , char*);
 int pronadiGrad(plista);
-int citajIzDatoteke(plista);
+int citajIzDatoteke(plista HashTab[HMAX]);
 int main(){
+    int i = 0;
     plista HashTab[HMAX];
 
-    for (int i = 0; i < HMAX; i++) {
+    for (i = 0; i < HMAX; i++) {
         HashTab[i] = (plista) malloc(sizeof(lista));
         HashTab[i] -> name = NULL;
         HashTab[i] -> root = NULL;
@@ -42,7 +43,7 @@ int main(){
 
     citajIzDatoteke(HashTab);
 
-    for (int i = 0; i < HMAX; i++) {
+    for (i = 0; i < HMAX; i++) {
         printL(HashTab[i]);
     }
 
@@ -233,7 +234,7 @@ int citajIzDatoteke(plista HashTab[HMAX])
             if (novi == NULL) {
                 return 0;
             }
-            novi -> name = (char * ) malloc(strlen(name));
+            novi -> name =(char* )malloc(strlen(name));
 
             strcpy(novi -> name, name);
             novi -> root = NULL;
