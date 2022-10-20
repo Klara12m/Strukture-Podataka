@@ -30,6 +30,7 @@ int printG(pstablo, int);
 plista pronadiDrzavu(plista , char*);
 int pronadiGrad(plista HashTab[HMAX]);
 int citajIzDatoteke(plista HashTab[HMAX]);
+int izbrisi(plista);
 int main(){
     int i = 0;
     plista HashTab[HMAX];
@@ -48,6 +49,10 @@ int main(){
     }
 
     pronadiGrad(HashTab);
+
+    for (i = 0; i < HMAX; i++) {
+        izbrisi(HashTab[i]);
+    }8
 
     return 0;
 }
@@ -264,11 +269,9 @@ int citajIzDatoteke(plista HashTab[HMAX])
                 if (strlen(templista -> name) < limit) {
                     limit = strlen(templista -> name);
                 }
-
                 for (int i = 0; i < limit; i++) {
                     key += (templista -> name)[i];
                 }
-
                 key = key % HMAX;
 
                 while (HashTab[key] -> next) {
@@ -295,4 +298,29 @@ int citajIzDatoteke(plista HashTab[HMAX])
   fclose(fp);
 
   return 0;
+}
+int izbrisi(plista head)
+{
+    plista temp = head -> next;
+    while(head->next != NULL){
+        izbrisiS(temp->root);
+        head->next = temp->next;
+        free(temp);
+    }
+    free(head);
+    return 0;
+}
+int izbrisiS(pstablo root)
+{
+    if(root->left != NULL)
+    {
+        izbrisiS(root->left);
+    }
+    if(root->right != NULL)
+    {
+        izbrisiS(root->right);
+    }
+    free(root);
+
+    return 0;
 }
