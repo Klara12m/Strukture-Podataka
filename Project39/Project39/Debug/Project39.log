@@ -1,0 +1,4 @@
+﻿  Source.c
+c:\users\klara\source\repos\project39\project39\source.c(98): warning C4013: 'malloc' undefined; assuming extern returning int
+c:\users\klara\source\repos\project39\project39\source.c(175): warning C4013: 'free' undefined; assuming extern returning int
+  Project39.vcxproj -> C:\Users\Klara\source\repos\Project39\Debug\Project39.exe
